@@ -14,13 +14,34 @@ TEXT_COLOUR = f'rgba(255,255,0,{WATERMARK_OPACITY})'
 
 IMAGE_SCALE = 0.2
 
+def parse_args():
+    """
+    Parse command line arguments.
+    """
+
+    parser = argparse.ArgumentParser(description='Watermark images with their relative paths.')
+    parser.add_argument('--input', required=True, help='Input directory containing source images.')
+    parser.add_argument('--logo', required=True, help='Input directory containing watermark logos.')
+    parser.add_argument('--output', required=True, help='Output directory to save watermarked images.')
+    parser.add_argument('--resize', choices=['none', 'facebook'], default='none', help='Resize option for the output images.')
+    args = parser.parse_args()
+    return args
+
 def get_logo_path(args):
+    """
+    Get the path to the logo file from the command line argument --logo.
+    """
     logo_path = os.path.join(args.logo, 'logo.png')
+    print(logo_path)
     if not os.path.isfile(logo_path):
         raise FileNotFoundError(f"Logo file not found: {logo_path}")
     return logo_path
 
 def print_settings(args):
+    """
+    Print the settings to the console.
+    """
+    
     source_path = Path(args.input)
     dest_path = Path(args.output)
     print("Settings:")
@@ -33,6 +54,10 @@ def print_settings(args):
     print(f"Resize option: {args.resize}")
 
 def add_watermark(source_path, dest_path, watermark_text, resize_option):
+    """
+    Add watermark to the image and save it to the destination path.
+    """
+
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Get image dimensions to adjust point size and logo size dynamically
@@ -57,6 +82,8 @@ def add_watermark(source_path, dest_path, watermark_text, resize_option):
     ]
     subprocess.run(command, check=True)
 
+    # If resize option is set to facebook, resize the image to 2047 on the longest edge.
+    # This is to ensure that the image is not compressed when uploaded to Facebook.
     if resize_option == "facebook":
         resize_cmd = [
             'magick', str(dest_path),
@@ -66,6 +93,9 @@ def add_watermark(source_path, dest_path, watermark_text, resize_option):
         subprocess.run(resize_cmd, check=True)
 
 def process_images(source_dir, dest_dir, resize_option):
+    """
+    Process images in the source directory and save watermarked images to the destination directory.
+    """
     total_files = 0
     processed_files = 0
 
@@ -83,19 +113,25 @@ def process_images(source_dir, dest_dir, resize_option):
                 print(f"\033[92mProcessed:\033[0m \033[1;37m{relative_path}\033[0m")
             except subprocess.CalledProcessError as e:
                 print(f"\033[91mFailed to process\033[0m \033[1;37m{relative_path}\033[0m: {e}")
-
-    sys.stdout.flush()
+            finally:
+                # stdout is buffered, so to ensure that all output is displayed in a timely manner, we flush the output buffer.
+                sys.stdout.flush()
     print(f"\nSummary: {processed_files}/{total_files} files processed successfully.")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Watermark images with their relative paths.')
-    parser.add_argument('--input', required=True, help='Input directory containing source images.')
-    parser.add_argument('--logo', required=True, help='Input directory containing watermark logos.')
-    parser.add_argument('--output', required=True, help='Output directory to save watermarked images.')
-    parser.add_argument('--resize', choices=['none', 'facebook'], default='none', help='Resize option for the output images.')
-    args = parser.parse_args()
+
+    # Parse command line arguments
+    args = parse_args()
+
+
+    # Set the path to the logo file
     LOGO_PATH = get_logo_path(args)
 
+    # Print settings
     print_settings(args)
 
+    # Process images
     process_images(Path(args.input), Path(args.output), args.resize)
+
+    # Exit the script with a successful status code.
+    sys.exit(0)
