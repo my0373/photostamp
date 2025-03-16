@@ -5,7 +5,7 @@
 This tool processes images by adding a diagonal orange watermark containing their relative path and filename. It uses Python and ImageMagick.
 
 ## Requirements
-- Docker installed on your system.
+- Docker / Podman installed on your system.
 
 ## Building the Docker Image
 
@@ -46,6 +46,24 @@ docker run --rm -v ./source_images:/app/source_images:Z \
 - Replace `./watermark_images` with your desired logo directory.
 
 
+## Example output
+```bash
+myork@fedora:~/projects/photostamp$ docker run --rm -v ./source_images:/app/source_images:Z \
+           -v ./destination_images:/app/destination_images:Z \
+           -v ./watermark_images:/app/watermark_images:Z \
+           watermark-tool --input /app/source_images --output /app/destination_images --logo /app/watermark_images
+Settings:
+Source directory: /app/source_images
+Destination directory: /app/destination_images
+Text watermark colour: rgba(255,255,0,0.8)
+Text watermark top margin: 0.02
+Image watermark path: /app/watermark_images/logo.png
+Image watermark scale: 0.2
+Processed: test_image/PXL_20250303_070036023.jpg
+Processed: test_image/subdir_test/PXL_20250306_082256641.PORTRAIT.jpg
+
+Summary: 2/2 files processed successfully.
+```
 
 ## Notes
 - The script will create missing directories in the destination path as needed.
@@ -57,5 +75,4 @@ docker run --rm -v ./source_images:/app/source_images:Z \
 
 ---
 
-You're all set to watermark images with ease!
 
