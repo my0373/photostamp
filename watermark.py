@@ -2,6 +2,7 @@ import os
 import subprocess
 import argparse
 from pathlib import Path
+import sys
 
 ## Text watermark settings
 WATERMARK_OPACITY = '0.8'
@@ -29,8 +30,9 @@ def print_settings(args):
     print(f"Text watermark top margin: {TEXT_TOP_MARGIN}")
     print(f"Image watermark path: {LOGO_PATH}")
     print(f"Image watermark scale: {IMAGE_SCALE}")
-    
-def add_watermark(source_path, dest_path, watermark_text):
+    print(f"Resize option: {args.resize}")
+
+def add_watermark(source_path, dest_path, watermark_text, resize_option):
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Get image dimensions to adjust point size and logo size dynamically
@@ -55,7 +57,15 @@ def add_watermark(source_path, dest_path, watermark_text):
     ]
     subprocess.run(command, check=True)
 
-def process_images(source_dir, dest_dir):
+    if resize_option == "facebook":
+        resize_cmd = [
+            'magick', str(dest_path),
+            '-resize', '2047x2047>',
+            str(dest_path)
+        ]
+        subprocess.run(resize_cmd, check=True)
+
+def process_images(source_dir, dest_dir, resize_option):
     total_files = 0
     processed_files = 0
 
@@ -68,12 +78,13 @@ def process_images(source_dir, dest_dir):
             watermark_text = str(relative_path)
 
             try:
-                add_watermark(source_file, dest_file, watermark_text)
+                add_watermark(source_file, dest_file, watermark_text, resize_option)
                 processed_files += 1
-                print(f"Processed: {relative_path}")
+                print(f"\033[92mProcessed:\033[0m \033[1;37m{relative_path}\033[0m")
             except subprocess.CalledProcessError as e:
-                print(f"Failed to process {relative_path}: {e}")
+                print(f"\033[91mFailed to process\033[0m \033[1;37m{relative_path}\033[0m: {e}")
 
+    sys.stdout.flush()
     print(f"\nSummary: {processed_files}/{total_files} files processed successfully.")
 
 if __name__ == '__main__':
@@ -81,9 +92,10 @@ if __name__ == '__main__':
     parser.add_argument('--input', required=True, help='Input directory containing source images.')
     parser.add_argument('--logo', required=True, help='Input directory containing watermark logos.')
     parser.add_argument('--output', required=True, help='Output directory to save watermarked images.')
+    parser.add_argument('--resize', choices=['none', 'facebook'], default='none', help='Resize option for the output images.')
     args = parser.parse_args()
     LOGO_PATH = get_logo_path(args)
 
     print_settings(args)
 
-    process_images(Path(args.input), Path(args.output))
+    process_images(Path(args.input), Path(args.output), args.resize)

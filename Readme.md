@@ -9,10 +9,14 @@ While it can be run directly as a Python script, I've packaged it using a Fedora
 I've created this to help me to create proof images for some volunteering I do for the [Team Bath AS swimming club](https://uk.gomotionapp.com/team/reczzasuk/page/home).
 
 ## Example output
-### Unprocessed image
-![unprocessed image](./example_images/PXL_20250306_082256641.PORTRAIT%20copy.jpg "Processed image")
-### Processed image
-![processed image](./example_images/PXL_20250306_082256641.PORTRAIT.jpg "Processed image")
+### Example portrait
+<img src="./example_images/PXL_20250306_082256641.PORTRAIT%20copy.jpg" alt="drawing" width="200"/>
+<img src="./example_images/PXL_20250306_082256641.PORTRAIT.jpg" alt="drawing" width="200"/>
+
+### Example landscape
+<img src="./example_images/PXL_20250303_070036023 copy.jpg" alt="drawing" width="500"/>
+<img src="./example_images/PXL_20250303_070036023.jpg" alt="drawing" width="500"/>
+
 ## Requirements
 - Docker / Podman installed on your system.
 
@@ -28,12 +32,16 @@ docker build -t watermark-tool .
 docker run --rm -v ./source_images:/app/source_images \
            -v ./destination_images:/app/destination_images \
            -v ./watermark_images:/app/watermark_images \
-           watermark-tool --input /app/source_images --output /app/destination_images --logo /app/watermark_images
+           watermark-tool --input /app/source_images  \  
+                          --output /app/destination_images  \
+                          --logo /app/watermark_images  \
+                          --resize=facebook
 ```
 
 - Replace `./source_images` with your actual local path to source images.
 - Replace `./destination_images` with your desired output directory.
 - Replace `./watermark_images` with your desired logo directory.
+- The `--resize` option, when set to a value of `facebook`, resizes the image to 2047 pixels on the long edge to reduce the risk of facebook badly compressing the image.
 
 ## Running the Tool (with SELinux)
 For systems running with SELinux enabled, it is possible that the container will not have permission to mount the local volumes. 
@@ -47,12 +55,16 @@ This is explained in detail [here](https://www.redhat.com/en/blog/user-namespace
 docker run --rm -v ./source_images:/app/source_images:Z \
            -v ./destination_images:/app/destination_images:Z \
            -v ./watermark_images:/app/watermark_images:Z \
-           watermark-tool --input /app/source_images --output /app/destination_images --logo /app/watermark_images
+            watermark-tool --input /app/source_images  \  
+                --output /app/destination_images  \
+                --logo /app/watermark_images  \
+                --resize=facebook
 ```
 
 - Replace `./source_images` with your actual local path to source images.
 - Replace `./destination_images` with your desired output directory.
 - Replace `./watermark_images` with your desired logo directory.
+- The `--resize` option, when set to a value of `facebook`, resizes the image to 2047 pixels on the long edge to reduce the risk of facebook badly compressing the image.
 
 
 ## Example output
@@ -61,6 +73,10 @@ myork@fedora:~/projects/photostamp$ docker run --rm -v ./source_images:/app/sour
            -v ./destination_images:/app/destination_images:Z \
            -v ./watermark_images:/app/watermark_images:Z \
            watermark-tool --input /app/source_images --output /app/destination_images --logo /app/watermark_images
+
+
+
+
 Settings:
 Source directory: /app/source_images
 Destination directory: /app/destination_images
