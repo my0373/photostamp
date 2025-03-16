@@ -2,7 +2,11 @@
 
 # Image Watermarking Tool
 
-This tool processes images by adding a diagonal orange watermark containing their relative path and filename. It uses Python and ImageMagick.
+This tool processes images by adding a watermark containing their relative path and filename at the top of the image. It uses Python and ImageMagick 7.
+
+While it can be run directly as a Python script, I've packaged it using a Fedora container image to ensure imagemagick (the correct version) is installed with the correct version of Python.
+
+I've created this to help me to create proof images for some volunteering I do for the [Team Bath AS swimming club](https://uk.gomotionapp.com/team/reczzasuk/page/home).
 
 ## Example output
 ### Unprocessed image
@@ -78,6 +82,10 @@ Summary: 2/2 files processed successfully.
 - Ensure the source directory contains readable image files.
 - Check Docker permissions if file access errors occur.
 
+## Future features (when I get time)
+- Image resizing
+- presets for text placement
 ---
+
 
 
