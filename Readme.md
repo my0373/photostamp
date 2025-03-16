@@ -4,6 +4,11 @@
 
 This tool processes images by adding a diagonal orange watermark containing their relative path and filename. It uses Python and ImageMagick.
 
+## Example output
+### Unprocessed image
+![unprocessed image](./example_images/PXL_20250306_082256641.PORTRAIT%20copy.jpg "Processed image")
+### Processed image
+![processed image](./example_images/PXL_20250306_082256641.PORTRAIT.jpg "Processed image")
 ## Requirements
 - Docker / Podman installed on your system.
 
